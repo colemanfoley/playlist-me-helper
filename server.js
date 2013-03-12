@@ -1,26 +1,28 @@
 var http = require("http");
 var Rdio = require('rdio-node').Rdio;
 
-// Create a new instance
 var r = new Rdio({
   consumerKey: 'ar4rzrs9vetnf8gq5rmw4avb'
 , consumerSecret: 'PZ5QyvM3A2'
 });
 
 var requestListener = function (request, response) {
-  console.log("Serving request type " + request.method + " for url " + request.url);
-  var statusCode = 200;
-  var fullQuery = "";
-  request.on('data', function(chunk) {
-    fullQuery += chunk.toString();
-  });
+  console.log(request);
   var headers = defaultCorsHeaders;
+  var statusCode = 200;
   headers['Content-Type'] = "text/plain";
   response.writeHead(statusCode, headers);
 
+  var fullQuery = "";
+  request.on('data', function(chunk) {
+    fullQuery += chunk;
+  });
+
   request.on('end', function (argument) {
+    console.log(argument);
+    JSON.parse(fullQuery);
     r.makeRequest('search', {query: fullQuery, types: 'Track'}, function() {
-      response.end(JSON.stringify(arguments[1].result.results[0]));
+      response.end(JSON.stringify(arguments[1].result.results));
     });
   });
 };
